@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ProjectUp</title>
+    <link rel="stylesheet" href="/Boot/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .navbar{
+            background-color: #0e8cd2;
+            border-color: #0e8cd2;
+        }
+
+        #Web{
+            color:#e9ffc6;
+        }
+        #user {
+            color: #e9ffc6;
+        }
+
+        li:hover {
+            background-color: #0affb3;
+        }
+        #Page1 {
+            color: #e9ffc6;
+        }
+
+        #Page2 {
+            color: #e9ffc6;
+        }
+        #logoff {
+            color: #e9ffc6;
+        }
+        #uploadproj {
+            color:#e9ffc6;
+        }
+    </style>
+</head>
+<body>
+<header style="margin-top: 5px">
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/"><span id="Web">ProjectUp</span></a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li><a href="/About.html"><span id="Page1">About Us</span></a></li>
+                <li><a href="/Contact.html"><span id="Page2">Contact Us</span></a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/logged"><span class="glyphicon glyphicon-user"></span> <span id="user"></span></a></li>
+                <li><a href="/logoff"><span id="logoff">Log out</span></a></li>
+                <li><a href="/projectupload"><span id="uploadproj">Upload a Project</span></a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+<div style="text-align: center">
+    <div id="profpic"></div>
+    <div id="UserInfo" style="font-weight: bold;font-family: Arial"></div>
+</div>
+<hr style="border:10px solid dodgerblue">
+<h3 style="text-align: center">Personal Data</h3>
+<div id="details">
+    <div class="col-sm-6 col-md-4"><span style="font-size: x-large;margin-left: -10px" class="glyphicon glyphicon-envelope"> <span style="font-weight: bold;font-size: x-large" id="userdetails"></span></span></div>
+</div>
+<div id="projects">
+    <hr style="border:10px solid dodgerblue">
+    <h3 style="text-align: center">My Projects</h3>
+</div>
+<script src="/jquery.js"></script>
+<script src="/Boot/js/bootstrap.min.js"></script>
+<script>
+    'use strict';
+    $(document).ready(function () {
+        const $projects = $('#projects');
+        const appear = function (id) {
+            $('#descr' + id).slideDown(500);
+        };
+        const remove = function (id) {
+            $('#descr'+id).slideUp(500);
+        };
+        const $userinfo = $('#UserInfo');
+        $.ajax({
+            type:"GET",
+            url:"/GetThingReady",
+            success:function(e){
+                if (e === 'The user has no image') {
+                    $("#profpic").append('<img class="img-thumbnail" onContextMenu=\"return false;\" style=\"height:160px;width:160px;text-align: center\" alt="" src="/default.jpg"/>');
+                } else {
+                    $("#profpic").append('<img class="img-thumbnail" onContextMenu=\"return false;\" style=\"height:160px;width:160px;text-align: center\" alt="" src="data:image/*;base64,' + e + '"/>');
+                }
+                },
+            error:function(e){
+                alert("Please log in again");
+                window.location.href = '/public/LogIn.html'
+            }
+        });
+
+        $.ajax({
+            type: "GET",
+            url: "/GetThingsReady",
+            success: function(e) {
+                console.log(e);
+                const text = JSON.parse(e);
+                $userinfo.append("<h4 style='font-weight: bold;font-family: Arial'>" + text.Name + "</h4>");
+                $userinfo.append("<h4 style='font-weight: bold;font-family: Arial'>" + text.LName + "</h4>");
+                $('#userdetails').html(text.mail);
+                $('#user').append(text.user);
+                if (text.team != undefined) {
+                    $("#details").append(
+                        '<div>' +
+                        '<span style="font-size: x-large; font-weight: bold" class="glyphicon glyphicon-flag">' +
+                        ' <span style="font-weight: bold; font-size: x-large" id="email">'+text.team+'' +
+                        '</span>' +
+                        '</span>' +
+                        '</div>'
+                    );
+                }
+                console.log("Text Done");
+            },
+            error: function(e) {
+                alert("Oops smth went wrong!");
+                window.location.href = '/public/LogIn.html';
+            }
+        });
+        $.ajax({
+            url : '/GetMyProjects',
+            type : 'GET',
+            success : function (e) {
+                const data = JSON.parse(e);
+                const keys = Object.keys(data);
+                if(!$.isEmptyObject(data)) {
+                    keys.forEach(function (value, number) {
+                        let comments;
+                        console.log(data[value]);
+                        if (data[value].coms) {
+                            comments = data[value].coms.split('chulchul');
+                        }
+                       // let comments = data[value].coms.split('chulchul');
+                        console.log(comments);
+                        console.log(data[value]);
+                        $('#projects').append(
+                            '<div> <div class="col-sm-6 col-md-4"> <div class="thumbnail" style="background-color: #0e8cd2">' +
+                            ' <div class="caption"><div style="word-wrap: break-word"><h3 style="color: white" class="TheTitles" data-id="' + number + '">' + data[value].tit + '</h3>' +
+                            '<div class="descr" style="display: none;" id="descr' + number + '"><span style="color: white;font-size: medium;">Description  ' + data[value].descr + '</span><br>' +
+                            '<span style="color: white;font-size:medium">Collaborators  ' + data[value].cols + '</span><br><hr style="border: 3px solid #ffffff;border-radius: 3px">' +
+                            '<ul style="list-style-type: none;text-align:center" id="Comments'+data[value].TheTitle+number+'"><div><span style="margin-left: -50px;font-size: medium;color: #ffffff" >Comments</span></div><br></ul>'+
+                            '<br><button class="btn btn-danger" data-id="'+number+'">Close</button></div>' +
+                            '</div>' +
+                            '</div>' +
+                            ' </div>' +
+                            ' </div>' +
+                            ' </div>' +
+                            ' </div>'
+                        );
+                        if (comments) {
+                            comments.forEach(function (comment, index) {
+                                if (comment) {
+                                    console.log(comment);
+                                    $('#Comments' + data[value].TheTitle+number).append('<li style="margin-left: -50px;border:2px solid #ffffff;border-radius:10px;text-align:center;color:#0e8cd2;background-color:#ffffff;font-size: medium">' + comment + '</li><br>')
+                                }
+                            })
+                        }
+                    });
+                } else {
+                    $('body').append('<div class="alert alert-warning"><strong>No Project Yet Upload One!!</strong><br><a href="/projectupload"><span style="color: #0f0f0f">Upload a Project!!</span></a></div>')
+                }
+            },
+            error : function () {
+            }
+        });
+        $projects.on("click",'.TheTitles' ,function(e){
+            console.log(e);
+            appear($(this).attr('data-id'));
+        });
+        $projects.on('click','button' ,function () {
+            console.log(this);
+            remove($(this).attr('data-id'));
+        });
+    });
+</script>
+</body>
+</html>

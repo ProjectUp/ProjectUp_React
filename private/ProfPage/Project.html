@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload a Project</title>
+    <link rel="stylesheet" href="/Boot/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .navbar{
+            background-color: #0e8cd2;
+            border-color: #0e8cd2;
+        }
+
+        #Web{
+            color:#e9ffc6;
+        }
+        #user {
+            color: #e9ffc6;
+        }
+
+        li:hover {
+            background-color: #0affb3;
+        }
+
+        .form-actions {
+            margin: 0;
+            background-color: transparent;
+            text-align: center;
+        }
+        #Page1 {
+            color: #e9ffc6;
+        }
+
+        #Page2 {
+            color: #e9ffc6;
+        }
+        #logoff {
+            color: #e9ffc6;
+        }
+    </style>
+</head>
+<body>
+<div style="margin-top: 5px">
+    <header>
+        <nav class="navbar navbar-inverse">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="/"><span id="Web">ProjectUp</span></a>
+                </div>
+                <ul class="nav navbar-nav">
+                    <li><a href="/About.html"><span id="Page1">About Us</span></a></li>
+                    <li><a href="/Contact.html"><span id="Page2">Contact Us</span></a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="/logged"><span class="glyphicon glyphicon-user"></span> <span id="user"></span></a></li>
+                    <li><a href="/logoff"><span id="logoff">Log out</span></a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+</div>
+<div>
+<form onsubmit="return false" class="form-horizontal col-sm-10">
+    <div class="form-group">
+    <label for="title" class="control-label col-sm-2 col-md-4">Title</label>
+        <div class="col-sm-10 col-md-4">
+    <input type="text" id="title" placeholder="Title" class="form-control"/>
+            <div id="titlealerts"></div>
+        </div>
+    </div>
+    <div class="form-group">
+    <label for="colabs" class="control-label col-sm-2 col-md-4">Collaborators</label>
+        <div class="col-sm-10 col-md-4">
+    <input type="text" id="colabs" placeholder="Colaborators" class="form-control"/>
+            <div id="colabalerts"></div>
+        </div>
+    </div>
+    <div class="form-group">
+    <label for="categ" class="control-label col-sm-2 col-md-4">Category</label>
+        <div class="col-sm-10 col-md-4">
+    <select name="categories" id="categ" class="form-control">
+        <option value="Web Sites">Web Site</option>
+        <option value="Blogs">Blog</option>
+        <optgroup label="Mobile Applications">
+            <option value="Games">Games</option>
+            <option value="Utilities">Utilities</option>
+            <option value="Useful Apps">Useful Apps</option>
+            <option value="News">News</option>
+            <option value="Media">Media</option>
+            <option value="Educational">Educational</option>
+            <option value="Scientific">Scientific</option>
+        </optgroup>
+        <option value="Other">Other</option>
+    </select>
+        </div>
+    </div>
+    <div class="form-group">
+    <label for="descr" class="control-label col-sm-2 col-md-4">Description</label>
+        <div class="col-sm-10 col-md-4">
+    <textarea name="description" id="descr" cols="10" rows="5" placeholder="Description" class="form-control"></textarea>
+            <span id="count">0 characters</span>
+            <button class="form-control btn btn-primary" id="clear" style="margin-top: 5px">Clear</button>
+            <div id="descralerts"></div>
+        </div>
+        </div>
+    <div class="form-group">
+    <label for="pics" class="control-label col-sm-2 col-md-4">Upload Pics</label>
+        <div class="col-sm-10 col-md-4">
+            <label class="btn btn-primary btn-file" id="upload">
+                Browse <input type="file" accept="image/*" multiple id="pics" class="form-control" style="display: none"/>
+            </label>
+            <span id="choice"></span>
+            <div id="picAlerts"></div>
+        </div>
+    </div>
+    <div class="form-actions">
+        <button class="btn btn-primary" id="test">Upload a Project</button>
+    </div>
+</form>
+</div>
+<script src="/jquery.js"></script>
+<script src="/Boot/js/bootstrap.min.js"></script>
+<script>
+    'use strict';
+    $(document).ready(function ($) {
+        $.ajax({
+            type:"GET",
+            url:"/GettingData",
+            success:function(e){
+                $("#user").append(e);
+            },
+            error:function(e){
+                console.log("Smth went wrong");
+            }
+        });
+        const $title = $('#title');
+        const $colabs = $('#colabs');
+        const $categ = $('#categ');
+        const $desc = $('#descr');
+        const $images = $('#pics');
+        const formData = new FormData();
+        $('#clear').on('click', function () {
+           $desc.val('');
+           $('#count').html('0 characters');
+        });
+        $desc.on('keyup', function () {
+           $('#count').html($desc.val().length  + ' characters');
+        });
+        $images.on('change', function () {
+            const size = $images[0].files.length;
+            console.log(size);
+            if (size !== 0) {
+                if (size === 1) {
+                    $('#choice').html('').append($images[0].files[0].name);
+                } else {
+                    $('#choice').html('').append(size + ' files');
+                }
+            } else {
+                $('#choice').html('');
+            }
+        });
+        $('#upload').on('click', function () {
+            $('#picAlerts').html('');
+        });
+        $title.on('click', function () {
+           $('#titlealerts').html('');
+        });
+        $desc.on('click', function () {
+            $('#descralerts').html('')
+        });
+        $colabs.on('click', function () {
+            $('#colabalerts').html('')
+        });
+        $('#test').on('click', function () {
+            const $pics = $images[0].files;
+            const currentTitle = $title.val().length === 0 ? undefined : $title.val();
+            const currentColabs = $colabs.val().length === 0 ? undefined : $colabs.val();
+            const  currentCateg = $categ.val();
+            const currentDesc = $desc.val().length === 0 ? undefined : $desc.val();
+            if ($pics.length) {
+                for (let i = 0; i < $pics.length; i++) {
+                    formData.append('images', $pics[i]);
+                }
+            } else {
+                $('#picAlerts').html('').append('<div class="alert alert-danger alert-dismissible"><strong>There Must Be At Least 1 Picture</strong></div>');
+            }
+            if (!currentTitle) {
+                $('#titlealerts').html('').append('<div class="alert alert-danger alert-dismissible"><strong>The Title Must Not Be Empty</strong></div>')
+            }
+            if (!currentColabs) {
+                $('#colabalerts').html('').append('<div class="alert alert-danger alert-dismissible"><strong>You Must Mention Your Collaborators</strong></div>')
+            }
+            if (!currentDesc) {
+                $('#descralerts').html('').append('<div class="alert alert-danger alert-dismissible"><strong>The Description Must Not Be Empty</strong></div>')
+            }
+            if (currentTitle && $pics.length && currentDesc && currentColabs) {
+                if (currentTitle.indexOf("'") >= 0 || currentTitle.indexOf("#") >= 0 || currentTitle.indexOf(".") >= 0 || currentTitle.indexOf(":") >= 0 || currentTitle.indexOf("$") >= 0 || currentTitle.indexOf('\\') >= 0 || currentTitle.indexOf("/") >= 0 || currentTitle.indexOf('"') >= 0) {
+                    $('#titlealerts').html('').append('<div class="alert alert-danger alert-dismissible"><strong>You Can\'t Use $, ., \', \\, :, /, #, " Characters in The Title</strong></div>')
+                } else {
+                    $.ajax({
+                        url: '/ProjectDetails',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            title: currentTitle,
+                            colabs: currentColabs,
+                            categ: currentCateg,
+                            desc: currentDesc,
+                        }),
+                        success: function (e) {
+                            console.log(e);
+                            if ($pics.length && e !== 'Project already exists') {
+                                $.ajax({
+                                    url: '/ProjectPics',
+                                    type: 'POST',
+                                    processData: false,
+                                    contentType: false,
+                                    data: formData,
+                                    success: function (e) {
+                                        console.log(e);
+                                        window.location.href = "/";
+                                    },
+                                    error: function (e) {
+                                        console.log(e);
+                                        alert('Something went wrong. Please try again');
+                                        window.location.reload();
+                                    }
+                                })
+                            } else if (e === 'Project already exists') {
+                                $('#titlealerts').html('').append('<div class="alert alert-danger alert-dismissible"><strong>Project Already Exists. Please Choose Different Title</strong></div>')
+                            }
+                        },
+                        error: function (e) {
+                            console.log(e);
+                            alert('Something went wrong. Please try again');
+                            window.location.reload();
+                        }
+                    })
+                }
+            }
+        });
+    });
+    </script>
+</body>
+</html>

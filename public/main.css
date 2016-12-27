@@ -1,0 +1,45 @@
+li:hover {
+    background-color: #0affb3;
+}
+
+.form-actions {
+    margin: 0;
+    background-color: transparent;
+    text-align: center;
+}
+
+.mount-enter {
+  opacity: 0.5;
+  transform: scale(0.3,0.3);
+}
+
+.mount-enter.mount-enter-active {
+  opacity: 1;
+  transform: scale(1,1);
+  transition: opacity .2s ease-in;
+  transition: transform .2s ease-out;
+}
+
+.comment-enter {
+  opacity: 0.5;
+  transform: scale(0.2, 0.2);
+}
+
+.comment-enter.comment-enter-active {
+  opacity: 1;
+  transform: scale(1, 1);
+  transition: opacity .3s ease-in;
+  transition:transform .3s ease-out;
+}
+
+.categ-appear {
+  opacity: 0.5;
+  transform: scale(0.3, 0.3);
+}
+
+.categ-appear.categ-appear-active {
+  opacity: 1;
+  transform: scale(1, 1);
+  transition: opacity .3s ease-in;
+  transition: transform .3s ease-out;
+}
