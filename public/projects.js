@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import ReactDOM from 'react-dom';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import Navbar from './navbar.js';
+import Navbar from './navbar.jsx';
 
 const categ = window.location.search;
 
@@ -69,18 +69,18 @@ const dots = this.props.pictures.map((image, number) => {
       <ol className="carousel-indicators">
         {dots}
       </ol>
-  <div className="carousel-inner" role="listbox">
+  <div className="carousel-inner" role="listbox">
     {carousel}
-  </div>
+  </div>
 
-  <a className="left carousel-control" href={"#myCarousel"+this.props.id} role="button" data-slide="prev">
-    <span className="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-    <span className="sr-only">Previous</span>
-  </a>
-  <a className="right carousel-control" href={"#myCarousel"+this.props.id} role="button" data-slide="next">
-    <span className="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-    <span className="sr-only">Next</span>
-  </a>
+  <a className="left carousel-control" href={"#myCarousel"+this.props.id} role="button" data-slide="prev">
+    <span className="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+    <span className="sr-only">Previous</span>
+  </a>
+  <a className="right carousel-control" href={"#myCarousel"+this.props.id} role="button" data-slide="next">
+    <span className="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+    <span className="sr-only">Next</span>
+  </a>
 </div>
     )
   }
@@ -99,6 +99,10 @@ class Description extends React.Component {
 
   handleSend = () => {
     if (this.state.value) {
+      let category = categ.substr(1);
+      if (category === 'MobileApplications/Useful%20Apps') {
+         category = 'MobileApplications/UsefulApps';
+      }
       $.ajax({
         url : '/Comment',
         type: 'POST',
@@ -106,7 +110,7 @@ class Description extends React.Component {
         data : JSON.stringify({
           comment : this.state.value,
           project : this.props.project,
-          categ : categ.substr(1)
+          categ : category
         }),
         success : () => {
           const newComments = this.state.comments.concat(this.state.value);
@@ -124,7 +128,20 @@ class Description extends React.Component {
   render() {
     const comments = this.state.comments.map((comment, index) => {
       if (comment) {
-        return <div key={index}><li style={{backgroundColor:'#0e8cd2', marginLeft:'-45px', border:'2px solid #0e8cd2', borderRadius:'10px', textAlign:'center', fontSize:'medium', color:'white'}}>{comment}</li><br /></div>
+        return <div key={index}>
+           <li
+           style={{
+             backgroundColor:'#0e8cd2',
+             marginLeft:'-45px',
+             border:'2px solid #0e8cd2',
+             borderRadius:'10px',
+             textAlign:'center',
+             fontSize:'medium',
+             color:'white'}}>
+             {comment}
+          </li>
+          <br />
+       </div>
       }
     })
     return(
@@ -143,7 +160,15 @@ class Description extends React.Component {
             {comments}
           </ReactCSSTransitionGroup>
         </ul>
-        <textarea rows="3" cols="50" name="comment" className="form-control" placeholder="Type a comment..." value={this.state.value} onChange={this.handleChange}></textarea>
+        <textarea
+           rows="3"
+           cols="50"
+           name="comment"
+           className="form-control"
+           placeholder="Type a comment..."
+           value={this.state.value}
+           onChange={this.handleChange}>
+        </textarea>
         <Button onClick={this.handleSend} />
       </div>
     )
@@ -167,7 +192,12 @@ class Thumbnail extends React.Component {
             {this.props.children}
                 <h3>{this.props.caption}</h3>
                 <Display handleOpen={this.handleOpen} handleClose={this.handleClose} />
-                <Description id={this.props.id} description={this.props.description} collabs={this.props.collabs} comments={this.props.comments} project={this.props.project} />
+                <Description
+                   id={this.props.id}
+                   description={this.props.description}
+                   collabs={this.props.collabs}
+                   comments={this.props.comments}
+                   project={this.props.project} />
             </div>
       </div>
       </div>
@@ -216,21 +246,28 @@ class Main extends React.Component {
     if (!this.state.projects) {
       return (<div className="alert alert-warning" style={{textAlign:'center'}}><strong>No Projects Yet</strong></div>)
     } else {
-    const allProjects = this.state.projects.length === 0 ? <div className="progress">
-  <div className="progress-bar progress-bar-danger progress-bar-striped" role="progressbar"
-  aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style={{width:"70%"}}>
-    70% Complete
-  </div>
-</div> : this.state.projects.map((project, index) => {
+    const allProjects = this.state.projects.map((project, index) => {
       if (project.images.length === 1) {
         return <div key={index}>
-                  <Thumbnail id={index} caption={project.TheTitle} description={project.descr} collabs={project.cols} comments={project.comments.split('chulchul')} project={project.user+'/'+project.TheTitle}>
-                    <img src={"data:image/*;base64,"+project.images[0]} className="img-responsive" style={{height:"300px", width:"360px"}} />
+                  <Thumbnail
+                     id={index}
+                     caption={project.TheTitle}
+                     description={project.descr}
+                     collabs={project.cols}
+                     comments={project.comments.split('chulchul')}
+                     project={project.user+'/'+project.TheTitle}>
+                    <img src={"data:image/*;base64,"+project.images[0]} className="img-responsive" style={{height:"240px", width:"360px"}} />
                   </Thumbnail>
                </div>
       } else {
         return <div key={index}>
-                  <Thumbnail id={index} caption={project.TheTitle} description={project.descr} collabs={project.cols} comments={project.comments.split('chulchul')} project={project.user+'/'+project.TheTitle}>
+                  <Thumbnail
+                     id={index}
+                     caption={project.TheTitle}
+                     description={project.descr}
+                     collabs={project.cols}
+                     comments={project.comments.split('chulchul')}
+                     project={project.user+'/'+project.TheTitle}>
                     <Carousel id={index} pictures={project.images} />
                   </Thumbnail>
                </div>
